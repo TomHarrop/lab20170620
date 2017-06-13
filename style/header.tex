@@ -1,0 +1,45 @@
+\title
+    [Lab talk 2017-06-20]
+    {Lab talk 2017-06-20}
+\author
+    [\href{mailto:tom.harrop@otago.ac.nz}{tom.harrop@otago.ac.nz}]
+    {Tom Harrop\\*
+    \href{mailto:tom.harrop@otago.ac.nz}{tom.harrop@otago.ac.nz}}
+
+% Enable lato (installed on unix with `tlmgr install lato`)
+\usepackage[defaultsans]{lato}
+
+% Enable citations in footnotes
+\usepackage{calc}
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{1in + \hoffset + \oddsidemargin + \textwidth}
+\setlength{\TPVertModule}{96mm-14pt}
+\newcommand
+    {\source}
+    [1]
+    {\scriptsize
+     \begin{textblock}{}[1, 0](1, 1)
+        \hfill #1
+     \end{textblock}}
+
+% Remove beamer template
+\setbeamertemplate{frametitle}
+  {\begin{centering}\smallskip
+   \insertframetitle\par
+   \smallskip\end{centering}}
+\setbeamertemplate{itemize item}{$\bullet$}
+\setbeamertemplate{navigation symbols}{}
+
+% Define beamer colours
+\definecolor{textcolour}{HTML}{797979}
+\definecolor{headingcolour}{HTML}{515151}
+\definecolor{linkcolour}{HTML}{2a7cdf}
+
+% Place colours
+\setbeamercolor{title}{fg=headingcolour}
+\setbeamercolor{frametitle}{fg=headingcolour}
+\setbeamercolor{normal text}{fg=textcolour}
+\setbeamercolor{itemize item}{fg=linkcolour} % bullets
+\setbeamercolor{block title}{fg=headingcolour,bg=linkcolour}
+\setbeamercolor{block body}{fg=headingcolour,bg=linkcolour}
+\setbeamercolor{alerted text}{fg=linkcolour}

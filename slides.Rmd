@@ -1,0 +1,71 @@
+---
+    #title: Sequencing and community annotation of the *Vespula vulgaris* genome
+    #author: "Tom Harrop"
+date: "2017-04-21"
+output: 
+    beamer_presentation:
+        includes:
+            in_header: style/header.tex
+            before_body: style/body.tex
+        keep_tex: false
+        fig_caption: false
+        fig_height: 4
+        fig_width: 6.5
+        fig_crop: false
+---
+    
+    ```{r setup, include=FALSE, results="hide"}
+library(data.table)
+library(ggplot2)
+library(scales)
+
+# sysfonts::font.add(
+#     "Lato",
+#     regular = "/usr/share/fonts/truetype/lato/Lato-Regular.ttf",
+#     bold = "/usr/share/fonts/truetype/lato/Lato-Bold.ttf",
+#     italic = "/usr/share/fonts/truetype/lato/Lato-Italic.ttf",
+#     bolditalic = "/usr/share/fonts/truetype/lato/Lato-BoldItalic.ttf")
+
+theme_slide <- ggplot2::theme_grey(
+    base_size = 16, base_family = "Lato"
+) +
+    ggplot2::theme(
+        plot.background = ggplot2::element_rect(fill = "transparent", colour = NA),
+        legend.background = ggplot2::element_rect(fill = "transparent", colour = NA))
+knitr::opts_chunk$set(
+    dev.args=list(bg = "transparent", family = "Lato"),
+    dev="cairo_pdf",
+    echo = FALSE,
+    message = FALSE,
+    warning = FALSE,
+    cache = TRUE,
+    fig.align = 'center',
+    out.width = "\\textwidth",
+    out.height  ="\\textheight")
+set1 <- RColorBrewer::brewer.pal(9, "Set1")
+heatscale <- RColorBrewer::brewer.pal(6, "YlOrRd")
+```
+
+# Arthropod genomics workshop & symposium
+
+![](img/AGS.png)
+
+# Noter daaaayme
+
+![](img/Basilica_and_Dome.jpg)
+
+\source{Eccekevin, CC BY-SA 4.0, \textcolor{linkcolour}{https://commons.wikimedia.org/w/index.php?curid=44762497}.}
+
+# GenomeHubs
+
+![](img/ngenomes1.png)
+
+\source{\textcolor{linkcolour}{http://ensembl.ngenomes.org/index.html}}
+
+# GenomeHubs
+
+![](img/GenomeHubs\ schematic\ overview.png)
+
+\source{\textcolor{linkcolour}{https://github.com/genomehubs}}
+
+# SCRMshaw
