@@ -1,6 +1,4 @@
 ---
-    #title: Sequencing and community annotation of the *Vespula vulgaris* genome
-    #author: "Tom Harrop"
 date: "2017-04-21"
 output: 
     beamer_presentation:
@@ -9,29 +7,39 @@ output:
             before_body: style/body.tex
         keep_tex: false
         fig_caption: false
-        fig_height: 4
-        fig_width: 6.5
+        fig_height: 6
+        fig_width: 8
         fig_crop: false
 ---
-    
-    ```{r setup, include=FALSE, results="hide"}
+
+```{r setup, include=FALSE, results="hide"}
 library(data.table)
+library(bit64)
 library(ggplot2)
 library(scales)
+library(gridExtra)
 
-# sysfonts::font.add(
-#     "Lato",
-#     regular = "/usr/share/fonts/truetype/lato/Lato-Regular.ttf",
-#     bold = "/usr/share/fonts/truetype/lato/Lato-Bold.ttf",
-#     italic = "/usr/share/fonts/truetype/lato/Lato-Italic.ttf",
-#     bolditalic = "/usr/share/fonts/truetype/lato/Lato-BoldItalic.ttf")
+sysfonts::font.add(
+    "Lato",
+    regular = "/usr/share/fonts/truetype/lato/Lato-Regular.ttf",
+    bold = "/usr/share/fonts/truetype/lato/Lato-Bold.ttf",
+    italic = "/usr/share/fonts/truetype/lato/Lato-Italic.ttf",
+    bolditalic = "/usr/share/fonts/truetype/lato/Lato-BoldItalic.ttf")
 
 theme_slide <- ggplot2::theme_grey(
-    base_size = 16, base_family = "Lato"
-) +
+    base_size = 16,
+    base_family = "Lato") +
     ggplot2::theme(
         plot.background = ggplot2::element_rect(fill = "transparent", colour = NA),
-        legend.background = ggplot2::element_rect(fill = "transparent", colour = NA))
+        legend.background = ggplot2::element_rect(fill = "transparent", colour = NA),
+        plot.margin = unit(c(5, 10, 5, 10), "mm"))
+theme_slide_small <- ggplot2::theme_grey(
+    base_size = 10,
+    base_family = "Lato") +
+    ggplot2::theme(
+        plot.background = ggplot2::element_rect(fill = "transparent", colour = NA),
+        legend.background = ggplot2::element_rect(fill = "transparent", colour = NA),
+        plot.margin = unit(c(5, 10, 5, 10), "mm"))
 knitr::opts_chunk$set(
     dev.args=list(bg = "transparent", family = "Lato"),
     dev="cairo_pdf",
@@ -46,26 +54,267 @@ set1 <- RColorBrewer::brewer.pal(9, "Set1")
 heatscale <- RColorBrewer::brewer.pal(6, "YlOrRd")
 ```
 
+```{r plot_data, include=FALSE, results="hide"}
+# load data
+stats_pd <- readRDS("data/stats_pd.Rds")
+busco_pd <- readRDS("data/busco_pd.Rds")
+
+# remove extra assemblies (no one cares at conference)
+extra_assemblies <- c("asw_diploid2_51mer", "asw_thruplex_soap_51mer")
+stats_pd <- stats_pd[!filename %in% extra_assemblies]
+busco_pd <- busco_pd[!filename %in% extra_assemblies]
+
+# set up labels
+species_order <- c("Listronotus bonariensis",
+                   "Microctonus hyperodae",
+                   "Cotesia vestalis", 
+                   "Dendroctonus ponderosae",
+                   "Diachasma alloeum",
+                   "Fopius arisanus", 
+                   "Hypothenemus hampei")
+busco_pd[, species_name := factor(species_name, levels = species_order)]
+stats_pd[, species_name := factor(species_name, levels = species_order)]
+
+var_order <- c(
+    "Contig length (MB)" =
+        '"Contig length (MB)"',
+    "Contigs (thousands)" =
+        '"Contigs (thousands)"',
+    "Scaffold length (MB)" =
+        '"Scaffold length (MB)"',
+    "Scaffolds (thousands)" =
+        '"Scaffolds (thousands)"',
+    "Contig L50 (KB)" =
+        '"Contig "*italic("L")[50]',
+    "Scaffold L50 (KB)" =
+        '"Scaffold "*italic("L")[50]',
+    "Gaps (%)" = 
+        '"Gaps (%)"',
+    "GC (%)" = 
+        '"GC (%)"')
+stats_pd[, variable := factor(
+    plyr::revalue(variable, replace = var_order),
+    levels = var_order)]
+```
+
+```{r plot_fns, include=FALSE, results="hide"}
+# stats plot
+sp <- function(x){
+    ggplot(x,
+           aes(x = species_name, y = value, fill = category)) +
+        theme_slide_small +
+        theme(axis.text.x = element_text(face = "italic",
+                                         angle = 45,
+                                         hjust = 1),
+              strip.text = element_text(size = rel(0.7))) +
+        xlab(NULL) + ylab(NULL) +
+        scale_fill_brewer(palette = "Set1", guide = FALSE) +
+        facet_wrap( ~ variable,
+                    scales = "free_y",
+                    nrow = 2,
+                    labeller = label_parsed) +
+        geom_col()
+}
+# busco plot
+bp <- function(x) {
+    ggplot(x,
+           aes(x = species_name, y = status_percent, fill = Status)) +
+        theme_slide +
+        theme(strip.background = element_blank(),
+              strip.text = element_blank(),
+              axis.text.x = element_text(face = "italic",
+                                         angle = 45,
+                                         hjust = 1)) +
+        facet_grid( ~ category, scales = "free_x", space = "free_x") +
+        xlab(NULL) + ylab("%") +
+        scale_fill_manual(values = set1[c(3:9)],
+                          guide = guide_legend(title = NULL)) +
+        geom_col(width = 0.75,
+                 position = position_dodge(width = 0.75))
+}
+
+```
+
+# ASW assembly
+
+```{r asw_sp}
+sp(stats_pd[family == "Curculionidae"])
+```
+
+# ASW BUSCO score
+
+```{r asw_bp}
+bp(busco_pd[family == "Curculionidae"])
+```
+
+# *M. hyperodae* assembly
+
+```{r mh_sp}
+sp(stats_pd[family == "Braconidae"])
+```
+
+# *M. hyperodae* BUSCO score
+
+```{r mh_bp}
+bp(busco_pd[family == "Braconidae"])
+```
+
+# Sequencing coverage
+
+```{r kmer_coverage}
+coverage_asw <- fread("data/asw_hist_before.txt")
+coverage_mh <- fread("data/mh_hist_before.txt")
+
+coverage_asw <- coverage_asw[, lapply(.SD, as.numeric)]
+coverage_mh <- coverage_mh[, lapply(.SD, as.numeric)]
+
+coverage_pd <- rbindlist(
+    list('"ASW"' = coverage_asw, 'italic("M. hyperodae")' = coverage_mh),
+    idcol = "species")
+
+# kmer coverage plots
+ggplot(coverage_pd, aes(x = `#Depth`, y = Unique_Kmers)) +
+    theme_slide +
+    facet_wrap(~species, nrow = 2,
+               labeller = label_parsed) +
+    geom_path(colour = set1[1]) +
+    scale_y_continuous(
+        trans = "log10",
+        labels = trans_format("log10", math_format(10^.x)),
+        breaks = trans_breaks("log10", function(x) 10^x)) +
+    scale_x_continuous(trans = log_trans(base = 4),
+                       breaks = trans_breaks(function(x) log(x, 4),
+                                             function(x) 4^x)) +
+    xlab("Depth") + ylab("Unique 31-mers")
+```
+
+# MinION (benchtop long-read sequencer)
+
+\centering
+
+![](https://nanoporetech.com/sites/default/files/s3/galeries/2017-05/MinION-2017_0.jpeg)
+
+\source{\url{https://nanoporetech.com}}
+
+# Lambda test run
+
+```{r lambda_stats}
+# load data
+basecov <- fread("data/basecov.txt")
+idhist_mapped <- fread("data/idhist_mapped.txt")
+readlength <- fread("data/readlength.txt")
+
+p0 <- ggplot(readlength, aes(x = `#Length`, y = reads)) +
+    theme_slide +
+    xlab("Read length") + ylab("Reads") +
+    scale_x_continuous(
+        trans = "log10",
+        labels = trans_format("log10", math_format(10^.x)),
+        breaks = trans_breaks("log10", function(x) 10^x)) +
+    geom_path(colour = set1[1])
+
+p1 <- ggplot(basecov, aes(x = Pos, y = Coverage)) +
+    theme_slide +
+    xlab("Reference genome position") +
+    geom_path(colour = set1[2])
+
+p2 <- ggplot(idhist_mapped, aes(y = Bases/1e6, x = `#Identity`)) +
+    theme_slide +
+    xlab("% Identity") + ylab("Megabases") +
+    geom_col(colour = set1[3])
+
+lm <- rbind(
+    c(1, 3),
+    c(2, 2)
+)
+
+gr_list <- lapply(list(p0, p1, p2), ggplotGrob)
+grid.arrange(grobs = gr_list, layout_matrix = lm)
+
+```
+
 # Arthropod genomics workshop & symposium
 
 ![](img/AGS.png)
 
-# Noter daaaayme
+# Noder Dayme
 
-![](img/Basilica_and_Dome.jpg)
+\centering
 
-\source{Eccekevin, CC BY-SA 4.0, \textcolor{linkcolour}{https://commons.wikimedia.org/w/index.php?curid=44762497}.}
+![](https://upload.wikimedia.org/wikipedia/commons/4/43/Basilica_and_Dome.jpg)
+
+\source{Eccekevin, CC BY-SA 4.0, \url{https://commons.wikimedia.org/w/index.php?curid=44762497}.}
+
+# SCRMshaw
+
+- Based on REDfly:
+- Manually curated database of *Dros* *cis*-regulatory modules (CRMs)
+- Machine-learning CRM detection algorithm trained with REDfly data
+
+# SCRMshaw
+
+\centering
+
+![](img/scrmshaw1.png)
+
+\source{Kazemian \emph{et al}. (2014), \href{https://academic.oup.com/gbe/article/6/9/2301/2467375/Evidence-for-Deep-Regulatory-Similarities-in-Early}{10.3390/insects7030046}.}
+
+# SCRMshaw
+
+- Based on REDfly:
+    - Manually curated database of *Dros* *cis*-regulatory modules (CRMs)
+- Machine-learning CRM detection algorithm trained with REDfly data
+- *Drosophila* training sets work for other insect genomes
+
+# SCRMshaw
+
+\centering
+
+![](img/scrmshaw2.png)
+
+\source{Kazemian \emph{et al}. (2014), \href{https://academic.oup.com/gbe/article/6/9/2301/2467375/Evidence-for-Deep-Regulatory-Similarities-in-Early}{10.3390/insects7030046}.}
+
+# SCRMshaw
+
+\centering
+
+![](https://origin-ars.els-cdn.com/content/image/1-s2.0-S0012160616301865-gr3_lrg.jpg)
+
+\source{Suryamohan \emph{et al}. (2016), \href{http://www.sciencedirect.com/science/article/pii/S0012160616301865}{10.1016/j.ydbio.2016.06.031}.}
+
+# GenomeHubs
+
+![](img/GIGA_Washington_2017.png)
+
+\source{\url{http://genomehubs.org/about/biogenomics2017/}}
+
+# GenomeHubs
+
+\centering
+
+![](https://raw.githubusercontent.com/genomehubs/genomehubs/master/assets/GenomeHubs%20schematic%20overview.png)
+
+\source{\url{https://github.com/genomehubs}}
 
 # GenomeHubs
 
 ![](img/ngenomes1.png)
 
-\source{\textcolor{linkcolour}{http://ensembl.ngenomes.org/index.html}}
+\source{\url{http://ensembl.ngenomes.org/index.html}}
 
 # GenomeHubs
 
-![](img/GenomeHubs\ schematic\ overview.png)
+![](img/GIGA_Washington_2017_2.png)
 
-\source{\textcolor{linkcolour}{https://github.com/genomehubs}}
+\source{\url{http://genomehubs.org/about/biogenomics2017/}}
 
-# SCRMshaw
+# Other snippets
+
+- Taxon-specific databases for genomes (*vs.* INSDC)
+    - Private, in-house annotation/curation (*e.g.* GenomeHubs)
+    - Push OGS to taxon-specific database & NCBI
+- OrthoDB demonstration (http://www.orthodb.org/)
+
+- Reconstructing population history in *Anopheles* by resequencing to 30-fold coverage
+- Structural variant detection in *Aedes* genome using 10X genomics (linked reads)
+- General move from TASSEL to STACKS
