@@ -19,6 +19,7 @@ library(ggplot2)
 library(scales)
 library(gridExtra)
 
+# enable Lato on Ubuntu
 sysfonts::font.add(
     "Lato",
     regular = "/usr/share/fonts/truetype/lato/Lato-Regular.ttf",
@@ -26,6 +27,7 @@ sysfonts::font.add(
     italic = "/usr/share/fonts/truetype/lato/Lato-Italic.ttf",
     bolditalic = "/usr/share/fonts/truetype/lato/Lato-BoldItalic.ttf")
 
+# normal ggplots
 theme_slide <- ggplot2::theme_grey(
     base_size = 16,
     base_family = "Lato") +
@@ -33,6 +35,8 @@ theme_slide <- ggplot2::theme_grey(
         plot.background = ggplot2::element_rect(fill = "transparent", colour = NA),
         legend.background = ggplot2::element_rect(fill = "transparent", colour = NA),
         plot.margin = unit(c(5, 10, 5, 10), "mm"))
+
+# ggplots with small text
 theme_slide_small <- ggplot2::theme_grey(
     base_size = 10,
     base_family = "Lato") +
@@ -40,6 +44,9 @@ theme_slide_small <- ggplot2::theme_grey(
         plot.background = ggplot2::element_rect(fill = "transparent", colour = NA),
         legend.background = ggplot2::element_rect(fill = "transparent", colour = NA),
         plot.margin = unit(c(5, 10, 5, 10), "mm"))
+
+# knitr options that work with fig_height: 6, fig_width: 8, and fig_crop: false
+# in beamer presentations
 knitr::opts_chunk$set(
     dev.args=list(bg = "transparent", family = "Lato"),
     dev="cairo_pdf",
@@ -50,6 +57,8 @@ knitr::opts_chunk$set(
     fig.align = 'center',
     out.width = "\\textwidth",
     out.height  ="\\textheight")
+
+# colour scheme for plots
 set1 <- RColorBrewer::brewer.pal(9, "Set1")
 heatscale <- RColorBrewer::brewer.pal(6, "YlOrRd")
 ```
@@ -245,11 +254,22 @@ grid.arrange(grobs = gr_list, layout_matrix = lm)
 
 \source{Eccekevin, CC BY-SA 4.0, \url{https://commons.wikimedia.org/w/index.php?curid=44762497}.}
 
+# Indiana, midwest US
+
+\centering
+
+![](img/Dashboard_1.png)
+
+\source{\url{http://www.theindychannel.com/news/politics/map-see-how-indianas-counties-voted}}
+
 # SCRMshaw
 
-- Based on REDfly:
-- Manually curated database of *Dros* *cis*-regulatory modules (CRMs)
-- Machine-learning CRM detection algorithm trained with REDfly data
+- Detection of conserved *cis*-regulatory modules (CRMs)
+- Sequence searches don't work
+- SCRMshaw:
+    - Machine-learning CRM detection algorithm
+    - REDfly: manually curated database of *Drosophila* CRMs (literature review), used to train SCRMshaw algorithm
+    - *Drosophila* training sets work for other insect genomes
 
 # SCRMshaw
 
@@ -258,13 +278,6 @@ grid.arrange(grobs = gr_list, layout_matrix = lm)
 ![](img/scrmshaw1.png)
 
 \source{Kazemian \emph{et al}. (2014), \href{https://academic.oup.com/gbe/article/6/9/2301/2467375/Evidence-for-Deep-Regulatory-Similarities-in-Early}{10.3390/insects7030046}.}
-
-# SCRMshaw
-
-- Based on REDfly:
-    - Manually curated database of *Dros* *cis*-regulatory modules (CRMs)
-- Machine-learning CRM detection algorithm trained with REDfly data
-- *Drosophila* training sets work for other insect genomes
 
 # SCRMshaw
 
@@ -308,13 +321,13 @@ grid.arrange(grobs = gr_list, layout_matrix = lm)
 
 \source{\url{http://genomehubs.org/about/biogenomics2017/}}
 
-# Other snippets
+# General stuff
 
 - Taxon-specific databases for genomes (*vs.* INSDC)
     - Private, in-house annotation/curation (*e.g.* GenomeHubs)
     - Push OGS to taxon-specific database & NCBI
 - OrthoDB demonstration (http://www.orthodb.org/)
-
 - Reconstructing population history in *Anopheles* by resequencing to 30-fold coverage
 - Structural variant detection in *Aedes* genome using 10X genomics (linked reads)
+- QTL-mapping Wolbachia density: interaction between Wolbachia and *Culex* genome
 - General move from TASSEL to STACKS
